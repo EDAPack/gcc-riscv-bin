@@ -26,6 +26,14 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Build artifacts
+install/
+release/
+gcc-riscv/
+*.tar.gz
+*.tar.xz
+*.elf
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
