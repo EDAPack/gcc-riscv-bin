@@ -64,16 +64,41 @@ mkdir -p build install
 #********************************************************************
 cd ${root}/build
 
+# Function to download with retry
+download_with_retry() {
+    local url=$1
+    local max_attempts=3
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        echo "Attempt $attempt of $max_attempts: Downloading from $url"
+        if wget -q "$url"; then
+            echo "Download successful!"
+            return 0
+        else
+            echo "Download failed (exit code $?)"
+            if [ $attempt -lt $max_attempts ]; then
+                echo "Retrying in 5 seconds..."
+                sleep 5
+            fi
+            attempt=$((attempt + 1))
+        fi
+    done
+    
+    echo "ERROR: Failed to download $url after $max_attempts attempts"
+    return 1
+}
+
 echo "Downloading binutils ${binutils_version}..."
-wget -q https://ftp.gnu.org/gnu/binutils/binutils-${binutils_version}.tar.xz
+download_with_retry https://ftp.gnu.org/gnu/binutils/binutils-${binutils_version}.tar.xz || exit 1
 tar xf binutils-${binutils_version}.tar.xz
 
 echo "Downloading GCC ${gcc_version}..."
-wget -q https://ftp.gnu.org/gnu/gcc/gcc-${gcc_version}/gcc-${gcc_version}.tar.xz
+download_with_retry https://ftp.gnu.org/gnu/gcc/gcc-${gcc_version}/gcc-${gcc_version}.tar.xz || exit 1
 tar xf gcc-${gcc_version}.tar.xz
 
 echo "Downloading newlib ${newlib_version}..."
-wget -q https://sourceware.org/pub/newlib/newlib-${newlib_version}.tar.gz
+download_with_retry https://sourceware.org/pub/newlib/newlib-${newlib_version}.tar.gz || exit 1
 tar xf newlib-${newlib_version}.tar.gz
 
 #********************************************************************

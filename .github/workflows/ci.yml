@@ -28,9 +28,9 @@ jobs:
                 grep -oP 'binutils-\K[0-9]+\.[0-9]+\.?[0-9]*' | \
                 sort -V | tail -1)
             
-            # Get latest newlib release
+            # Get latest newlib release (includes date suffix)
             newlib_version=$(curl -s https://sourceware.org/pub/newlib/ | \
-                grep -oP 'newlib-\K[0-9]+\.[0-9]+\.[0-9]+' | \
+                grep -oP 'newlib-\K[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | \
                 sort -V | tail -1)
 
             echo "gcc_version: ${gcc_version}"
