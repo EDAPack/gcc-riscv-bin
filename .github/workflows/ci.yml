@@ -18,10 +18,11 @@ jobs:
         - name: fetch-version
           id: check
           run: |
-            # Get latest GCC release from GNU FTP
+            # Get latest stable GCC release (14.x series, avoid bleeding edge 15.x)
             gcc_version=$(curl -s https://ftp.gnu.org/gnu/gcc/ | \
-                grep -oP 'gcc-\K[0-9]+\.[0-9]+\.[0-9]+' | \
+                grep -oP 'gcc-14\.\K[0-9]+\.[0-9]+' | \
                 sort -V | tail -1)
+            gcc_version="14.${gcc_version}"
             
             # Get latest binutils release
             binutils_version=$(curl -s https://ftp.gnu.org/gnu/binutils/ | \

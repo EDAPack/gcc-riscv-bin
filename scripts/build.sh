@@ -188,6 +188,9 @@ cd ${root}/build
 mkdir -p build-gcc-stage2
 cd build-gcc-stage2
 
+# Set AR_FLAGS to use response files if needed (for long command lines)
+export AR_FLAGS="rc"
+
 ../gcc-${gcc_version}/configure \
     --target=${TARGET} \
     --prefix=${PREFIX} \
@@ -207,7 +210,13 @@ cd build-gcc-stage2
     --with-arch=rv64gc \
     --with-abi=lp64d
 
-make -j$(nproc)
+# Reduce parallelism for stage 2 to avoid ar command line issues
+# Use at most 4 parallel jobs for linking
+MAKE_JOBS=$(nproc)
+if [ $MAKE_JOBS -gt 4 ]; then
+    MAKE_JOBS=4
+fi
+make -j${MAKE_JOBS}
 make install
 
 #********************************************************************
