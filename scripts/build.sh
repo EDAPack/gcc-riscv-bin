@@ -128,6 +128,7 @@ cd build-binutils
     --disable-nls \
     --disable-werror \
     --disable-gdb \
+    --disable-multilib \
     --with-expat=yes
 
 make -j$(nproc)
@@ -162,7 +163,7 @@ cd build-gcc-stage1
     --disable-libgomp \
     --disable-nls \
     --disable-bootstrap \
-    --enable-multilib \
+    --disable-multilib \
     --with-arch=rv64gc \
     --with-abi=lp64d
 
@@ -187,7 +188,7 @@ export PATH=${PREFIX}/bin:$PATH
 ../newlib-${newlib_version}/configure \
     --target=${TARGET} \
     --prefix=${PREFIX} \
-    --enable-multilib \
+    --disable-multilib \
     --enable-newlib-io-long-long \
     --enable-newlib-register-fini \
     --disable-newlib-supplied-syscalls \
@@ -228,7 +229,7 @@ export AR_FLAGS="rc"
     --disable-libquadmath \
     --disable-nls \
     --disable-bootstrap \
-    --enable-multilib \
+    --disable-multilib \
     --with-arch=rv64gc \
     --with-abi=lp64d
 

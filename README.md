@@ -18,7 +18,8 @@ This repository provides automated builds of a complete RISC-V bare-metal crossc
 - **Target triple**: `riscv64-unknown-elf`
 - **Architecture**: rv64gc (RV64 with general extensions and compressed instructions)
 - **ABI**: lp64d (64-bit long and pointers, double-precision float in registers)
-- **Multilib**: Enabled for multiple architecture variants
+- **Single-target build**: Optimized for rv64gc to reduce build size and time
+  - For other RISC-V variants (rv32, different ISA extensions), use GCC's `-march` flag at compile time
 
 ## Installation
 
@@ -29,14 +30,17 @@ This repository provides automated builds of a complete RISC-V bare-metal crossc
 ## Usage
 
 ```bash
-# Compile a simple program
+# Compile a simple program (default rv64gc)
 riscv64-unknown-elf-gcc -o program.elf program.c
 
-# Compile for RV32
+# Compile for RV32 using -march flag
 riscv64-unknown-elf-gcc -march=rv32gc -mabi=ilp32d -o program.elf program.c
 
-# Check available multilibs
-riscv64-unknown-elf-gcc -print-multi-lib
+# Compile for RV64 with different ISA extensions
+riscv64-unknown-elf-gcc -march=rv64imac -mabi=lp64 -o program.elf program.c
+
+# Check compiler version and default target
+riscv64-unknown-elf-gcc -v
 ```
 
 ## Build Process
