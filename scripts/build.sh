@@ -114,6 +114,37 @@ cd ${root}/build/gcc-${gcc_version}
 ./contrib/download_prerequisites
 
 #********************************************************************
+#* Create custom multilib configuration
+#* Only build: rv32i/ilp32, rv32imac/ilp32, rv64i/lp64, rv64imac/lp64
+#********************************************************************
+echo "Creating custom multilib configuration..."
+cd ${root}/build/gcc-${gcc_version}/gcc/config/riscv
+
+# Backup original multilib configuration
+cp t-elf-multilib t-elf-multilib.orig 2>/dev/null || true
+
+# Create custom multilib configuration
+cat > t-elf-multilib << 'EOF'
+# Custom multilib configuration for rv32i, rv32imac, rv64i, rv64imac
+
+MULTILIB_OPTIONS = march=rv32i/march=rv32imac/march=rv64i/march=rv64imac mabi=ilp32/mabi=lp64
+MULTILIB_DIRNAMES = rv32i rv32imac rv64i rv64imac ilp32 lp64
+
+# Required matches - exclude invalid combinations
+# rv32 must use ilp32, rv64 must use lp64
+MULTILIB_REQUIRED = march=rv32i/mabi=ilp32
+MULTILIB_REQUIRED += march=rv32imac/mabi=ilp32
+MULTILIB_REQUIRED += march=rv64i/mabi=lp64
+MULTILIB_REQUIRED += march=rv64imac/mabi=lp64
+
+# Reuse settings
+MULTILIB_REUSE =
+EOF
+
+echo "Custom multilib configuration created"
+cat t-elf-multilib
+
+#********************************************************************
 #* Build binutils
 #********************************************************************
 echo "Building binutils..."
@@ -128,7 +159,7 @@ cd build-binutils
     --disable-nls \
     --disable-werror \
     --disable-gdb \
-    --disable-multilib \
+    --enable-multilib \
     --with-expat=yes
 
 make -j$(nproc)
@@ -163,9 +194,9 @@ cd build-gcc-stage1
     --disable-libgomp \
     --disable-nls \
     --disable-bootstrap \
-    --disable-multilib \
-    --with-arch=rv64gc \
-    --with-abi=lp64d
+    --enable-multilib \
+    --with-arch=rv64imac \
+    --with-abi=lp64
 
 make -j$(nproc) all-gcc
 make install-gcc
@@ -188,7 +219,7 @@ export PATH=${PREFIX}/bin:$PATH
 ../newlib-${newlib_version}/configure \
     --target=${TARGET} \
     --prefix=${PREFIX} \
-    --disable-multilib \
+    --enable-multilib \
     --enable-newlib-io-long-long \
     --enable-newlib-register-fini \
     --disable-newlib-supplied-syscalls \
@@ -229,9 +260,9 @@ export AR_FLAGS="rc"
     --disable-libquadmath \
     --disable-nls \
     --disable-bootstrap \
-    --disable-multilib \
-    --with-arch=rv64gc \
-    --with-abi=lp64d
+    --enable-multilib \
+    --with-arch=rv64imac \
+    --with-abi=lp64
 
 # Reduce parallelism for stage 2 to avoid ar command line issues
 # Use at most 4 parallel jobs for linking

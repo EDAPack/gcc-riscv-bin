@@ -16,10 +16,13 @@ This repository provides automated builds of a complete RISC-V bare-metal crossc
 ## Target Configuration
 
 - **Target triple**: `riscv64-unknown-elf`
-- **Architecture**: rv64gc (RV64 with general extensions and compressed instructions)
-- **ABI**: lp64d (64-bit long and pointers, double-precision float in registers)
-- **Single-target build**: Optimized for rv64gc to reduce build size and time
-  - For other RISC-V variants (rv32, different ISA extensions), use GCC's `-march` flag at compile time
+- **Default architecture**: rv64imac
+- **Default ABI**: lp64
+- **Multilib variants**: Custom configuration with 4 optimized targets:
+  - `rv32i/ilp32` - RV32 base integer instruction set
+  - `rv32imac/ilp32` - RV32 with integer multiply, atomics, compressed
+  - `rv64i/lp64` - RV64 base integer instruction set
+  - `rv64imac/lp64` - RV64 with integer multiply, atomics, compressed (default)
 
 ## Installation
 
@@ -30,17 +33,23 @@ This repository provides automated builds of a complete RISC-V bare-metal crossc
 ## Usage
 
 ```bash
-# Compile a simple program (default rv64gc)
+# Compile with default (rv64imac/lp64)
 riscv64-unknown-elf-gcc -o program.elf program.c
 
-# Compile for RV32 using -march flag
-riscv64-unknown-elf-gcc -march=rv32gc -mabi=ilp32d -o program.elf program.c
+# Compile for RV32 base integer
+riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -o program.elf program.c
 
-# Compile for RV64 with different ISA extensions
+# Compile for RV32 with multiply, atomics, compressed
+riscv64-unknown-elf-gcc -march=rv32imac -mabi=ilp32 -o program.elf program.c
+
+# Compile for RV64 base integer
+riscv64-unknown-elf-gcc -march=rv64i -mabi=lp64 -o program.elf program.c
+
+# Compile with default (rv64imac)
 riscv64-unknown-elf-gcc -march=rv64imac -mabi=lp64 -o program.elf program.c
 
-# Check compiler version and default target
-riscv64-unknown-elf-gcc -v
+# Check available multilib variants
+riscv64-unknown-elf-gcc -print-multi-lib
 ```
 
 ## Build Process
