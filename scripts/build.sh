@@ -101,6 +101,12 @@ echo "Downloading newlib ${newlib_version}..."
 download_with_retry https://sourceware.org/pub/newlib/newlib-${newlib_version}.tar.gz || exit 1
 tar xf newlib-${newlib_version}.tar.gz
 
+# Clean up downloaded tarballs to free disk space
+echo "Cleaning up source tarballs..."
+rm -f binutils-${binutils_version}.tar.xz
+rm -f gcc-${gcc_version}.tar.xz
+rm -f newlib-${newlib_version}.tar.gz
+
 #********************************************************************
 #* Download GCC prerequisites
 #********************************************************************
@@ -126,6 +132,11 @@ cd build-binutils
 
 make -j$(nproc)
 make install
+
+# Clean up binutils build directory to free disk space
+echo "Cleaning up binutils build directory..."
+cd ${root}/build
+rm -rf build-binutils
 
 #********************************************************************
 #* Build GCC (stage 1 - without libc)
@@ -158,6 +169,11 @@ cd build-gcc-stage1
 make -j$(nproc) all-gcc
 make install-gcc
 
+# Clean up stage 1 build to free disk space
+echo "Cleaning up GCC stage 1 build directory..."
+cd ${root}/build
+rm -rf build-gcc-stage1
+
 #********************************************************************
 #* Build newlib
 #********************************************************************
@@ -179,6 +195,12 @@ export PATH=${PREFIX}/bin:$PATH
 
 make -j$(nproc)
 make install
+
+# Clean up newlib build and source to free disk space  
+echo "Cleaning up newlib build directory..."
+cd ${root}/build
+rm -rf build-newlib
+rm -rf newlib-${newlib_version}
 
 #********************************************************************
 #* Build GCC (stage 2 - with libc)
@@ -216,7 +238,11 @@ MAKE_JOBS=$(nproc)
 if [ $MAKE_JOBS -gt 4 ]; then
     MAKE_JOBS=4
 fi
-make -j${MAKE_JOBS}
+
+# Build without PCH (precompiled headers) to save disk space
+# GitHub Actions runners have limited disk space, and multilib builds
+# generate PCH files for each variant which can fill the disk
+make -j${MAKE_JOBS} GLIBCXX_INCLUDE_PCH=no
 make install
 
 #********************************************************************
