@@ -363,6 +363,7 @@ mkdir -p release
 # Rename install directory to include target name
 mv install gcc-riscv
 
+cp ${root}/scripts/export.envrc gcc-riscv/
 cd ${root}
 tar czf release/gcc-riscv-${rls_plat}-${rls_version}.tar.gz gcc-riscv
 
