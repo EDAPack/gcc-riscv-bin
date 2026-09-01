@@ -75,9 +75,12 @@ jobs:
                 sort -V | tail -1)
             gcc_version="14.${gcc_version}"
             
-            # Get latest binutils release
+            # Get latest binutils release. Anchor on the .tar.xz suffix that
+            # build.sh actually downloads: without it the trailing \.?[0-9]*
+            # swallows the separating dot of "binutils-2.47.tar.xz" and yields
+            # "2.47.", which sort -V ranks last and which 404s on download.
             binutils_version=$(curl -s https://ftp.gnu.org/gnu/binutils/ | \
-                grep -oP 'binutils-\K[0-9]+\.[0-9]+\.?[0-9]*' | \
+                grep -oP 'binutils-\K[0-9]+\.[0-9]+(\.[0-9]+)?(?=\.tar\.xz)' | \
                 sort -V | tail -1)
             
             # Get latest newlib release (includes date suffix)
